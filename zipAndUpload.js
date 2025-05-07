@@ -90,7 +90,7 @@ function runBackup() {
 }
 
 // ✅ 每分鐘備份一次（測試用）
-cron.schedule('*/1 * * * *', () => {
+cron.schedule('0 12 * * *', () => {
   console.log('⏰ 自動備份啟動...')
   runBackup()
 })
