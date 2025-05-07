@@ -1,0 +1,95 @@
+[
+  {
+    "id": "02",
+    "breedId": "euro",
+    "description": "只有圖片",
+    "mainImage": "1746435061526-7hphx44mdvn.jpg",
+    "details": [
+      "1746435061528-88vp6pf6c5s.jpg",
+      "1746435061529-xr06ennajy.jpg",
+      "1746435061531-2twzjpz3117.jpg",
+      "1746435061535-r4qxda8fpci.jpg",
+      "1746435061537-p4nl8nfci2s.jpg",
+      "1746435061540-c6xfmfz2b26.jpg",
+      "1746435061543-qmdorepcsc9.jpg"
+    ],
+    "videos": []
+  },
+  {
+    "id": "03",
+    "breedId": "euro",
+    "description": "只有影片",
+    "mainImage": "1746435083345-nvju2y11rlf.jpg",
+    "details": [],
+    "videos": [
+      "1746435083349-1faasg8daam.mp4"
+    ]
+  },
+  {
+    "id": "04",
+    "breedId": "euro",
+    "description": "全部都有",
+    "mainImage": "1746435158990-zjowmwm5ogl.jpg",
+    "details": [
+      "1746435158993-g7a4pbsbt3r.jpg",
+      "1746435158995-25xmma6mtko.jpg",
+      "1746435158997-rs56a7ojb9.jpg",
+      "1746435158999-4vcypkl7n9j.jpg",
+      "1746435159001-dwao02ko5ls.jpg",
+      "1746435159004-snfg6fbszy.jpg"
+    ],
+    "videos": [
+      "1746435159006-fsqnpp68hv.mp4"
+    ]
+  },
+  {
+    "id": "01",
+    "breedId": "leopard",
+    "description": "這是一號紫水晶 可以助眠 等等功效",
+    "mainImage": "1746519367001-t52f7exnv4i.jpg",
+    "details": [
+      "1746519367001-m2elr475c7i.jpg",
+      "1746519367001-a0l4hv7i8p.jpg",
+      "1746519367001-pe1gd63ggl.jpg",
+      "1746519367002-bf2neksyrsj.jpg",
+      "1746519367002-cqshz7lxcxb.jpg"
+    ],
+    "videos": [
+      "1746519367003-cgoniqcke0q.mp4"
+    ]
+  },
+  {
+    "id": "01",
+    "breedId": "sulcata",
+    "description": "01",
+    "mainImage": "1746519459786-rrzsvjluzr.jpg",
+    "details": [
+      "1746520177968-594fq23umwb.jpg"
+    ],
+    "videos": [
+      "1746519459789-gj8sl06l77.mp4"
+    ]
+  },
+  {
+    "id": "01",
+    "breedId": "redfoot",
+    "description": "蘇",
+    "mainImage": "1746520162448-4q15ns7jjv4.jpg",
+    "details": [
+      "1746520162450-ee3uyywi81.jpg"
+    ],
+    "videos": []
+  },
+  {
+    "id": "01",
+    "breedId": "yellowhead",
+    "description": "10",
+    "mainImage": "1746596690425-8z2ke7iq5te.jpg",
+    "details": [
+      "1746596690427-fc98z9oyl6v.jpg"
+    ],
+    "videos": [
+      "1746596690429-x93862vs2e.mp4"
+    ]
+  }
+]

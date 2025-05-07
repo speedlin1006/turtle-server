@@ -1,0 +1,127 @@
+const express = require('express')
+const fs = require('fs')
+const path = require('path')
+const router = express.Router()
+const { verifyToken, logOperation } = require('../utils/helpers')
+
+const ordersPath = path.join(__dirname, '../orders.json')
+
+// 初始化訂單檔案
+if (!fs.existsSync(ordersPath)) {
+  fs.writeFileSync(ordersPath, JSON.stringify([]))
+}
+
+function readOrders() {
+  try {
+    const data = fs.readFileSync(ordersPath, 'utf-8')
+    return JSON.parse(data)
+  } catch {
+    return []
+  }
+}
+
+// ✅ 自訂格式化 Order ID（如：20250506161520555 → 2025年05月06日 16:15:20.555）
+function formatOrderId(id) {
+  return (
+    id.slice(0, 4) + '年' +   // 年
+    id.slice(4, 6) + '月' +   // 月
+    id.slice(6, 8) + '日 ' +  // 日
+    id.slice(8, 10) + ':' +   // 時
+    id.slice(10, 12) + ':' +  // 分
+    id.slice(12, 14) + '.' +  // 秒
+    id.slice(14)              // 毫秒
+  )
+}
+
+// ✅ 前台公開：新增訂單（不需驗證）
+router.post('/', (req, res) => {
+  const order = req.body
+  if (!order || !order.contact || !order.cart) {
+    return res.status(400).json({ success: false })
+  }
+
+  const orders = readOrders()
+  orders.push({
+    ...order,
+    createdAt: order.createdAt || new Date().toISOString(), // 若前端沒傳則補上
+    deleted: false,
+    status: '未出單'
+  })
+
+  fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
+
+  logOperation({
+    type: '新增訂單',
+    orderId: order.createdAt,
+    contact: order.contact,
+    items: order.cart
+  })
+  res.status(201).json({ success: true })
+})
+
+// ✅ 查詢未刪除訂單（需要登入）
+router.get('/', verifyToken, (req, res) => {
+  const orders = readOrders()
+  res.json(orders.filter(o => !o.deleted))
+})
+
+// ✅ 查詢已刪除訂單（需要登入）
+router.get('/deleted', verifyToken, (req, res) => {
+  const orders = readOrders()
+  res.json(orders.filter(o => o.deleted))
+})
+
+// ✅ 刪除訂單（需要登入）
+router.delete('/:createdAt', verifyToken, (req, res) => {
+  const { createdAt } = req.params
+  const { reason, user } = req.body
+  const orders = readOrders()
+
+  const index = orders.findIndex(order => String(order.createdAt) === String(createdAt))
+  if (index === -1) return res.status(404).json({ success: false })
+
+  orders[index].deleted = true
+  orders[index].deleteReason = reason
+  orders[index].deletedAt = new Date().toISOString()
+
+  fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
+  logOperation({ type: '刪除訂單', createdAt, reason, user: user || '未知使用者' }, req)
+
+  res.json({ success: true })
+})
+
+// ✅ 修改訂單狀態（需要登入）
+router.post('/status', verifyToken, (req, res) => {
+  const { orderId, newStatus, user } = req.body
+  if (!orderId || !newStatus) return res.status(400).json({ success: false })
+
+  const orders = readOrders()
+  const index = orders.findIndex(order => String(order.createdAt) === String(orderId))
+  if (index === -1) return res.status(404).json({ success: false })
+
+  const oldStatus = orders[index].status || '未設定'
+  orders[index].status = newStatus
+  orders[index].statusUpdatedAt = new Date().toISOString()
+
+  fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
+
+  let orderNo = ''
+  try {
+    orderNo = formatOrderId(orderId)
+  } catch {
+    orderNo = '[轉換失敗]'
+  }
+
+  logOperation({
+    type: '修改訂單狀態',
+    orderId,
+    orderNo,
+    oldStatus,
+    newStatus,
+    user: user || '未知使用者'
+  })
+
+  res.json({ success: true })
+})
+
+module.exports = router

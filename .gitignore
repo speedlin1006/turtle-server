@@ -1,0 +1,12 @@
+# 排除 node_modules 套件
+/node_modules/
+
+# 排除 ffmpeg 產生的 HLS 串流資料夾
+/public/hls/
+
+# 排除 Google Cloud 憑證檔案（避免洩漏）
+sharp-effort-353719-b0812a41ea70.json
+
+# 可選：作業系統常見暫存檔（建議加上）
+.DS_Store
+Thumbs.db

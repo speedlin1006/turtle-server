@@ -1,0 +1,61 @@
+[
+  {
+    "name": "UVB 全光譜燈123",
+    "price": 1280,
+    "brand": "ReptiSun",
+    "description": "提供烏龜日照所需的 UVB 光線，內含燈座＋燈管",
+    "image": "/shop/1.jpg",
+    "qty": 1,
+    "id": "17453902815617327"
+  },
+  {
+    "name": "兩棲用電子溫度計與濕度計",
+    "price": 450,
+    "brand": "ThermoPro",
+    "description": "LCD 大螢幕顯示，精準顯示龜缸內環境狀況",
+    "image": "/shop/2.jpg",
+    "qty": 1,
+    "id": "17453902815618150",
+    "user": "阿極"
+  },
+  {
+    "name": "60*36*30 強化玻璃龜缸",
+    "price": 2400,
+    "brand": "AquaLand",
+    "description": "高透明強化玻璃，適合中小型烏龜空間使用",
+    "image": "/shop/3.jpg",
+    "qty": 1,
+    "id": "17453902815617677"
+  },
+  {
+    "name": "麥稈(八公斤)",
+    "price": 450,
+    "brand": "EcoEarth",
+    "description": "吸水保濕，天然環保墊材，適合陸棲爬蟲使用",
+    "image": "/shop/4.jpg",
+    "qty": 1,
+    "id": "17453902815616324"
+  },
+  {
+    "name": "test ",
+    "brand": "test",
+    "price": 10000,
+    "description": "test ",
+    "image": [
+      "/shop/1746524617106.jpg"
+    ],
+    "user": "阿極",
+    "id": "1746524617115"
+  },
+  {
+    "name": "1",
+    "brand": "1",
+    "price": 1,
+    "description": "1",
+    "image": [
+      "/shop/1746617393385.jpg"
+    ],
+    "user": "測試帳號",
+    "id": "1746617393391"
+  }
+]
