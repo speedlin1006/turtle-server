@@ -82,10 +82,10 @@ function runBackup() {
 }
 
 // ✅ 每天 00:30 自動備份
-cron.schedule('30 1 * * *', () => {
-  console.log('⏰ 自動備份啟動...')
-  runBackup()
-})
+cron.schedule('*/1 * * * *', () => {
+    console.log('⏰ 自動備份啟動...')
+    runBackup()
+  })
 
 // ✅ 啟動時也會立即備份一次（方便你測試）
 runBackup()
