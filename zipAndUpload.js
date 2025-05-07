@@ -1,3 +1,4 @@
+
 const fs = require('fs')
 const path = require('path')
 const archiver = require('archiver')
@@ -47,10 +48,17 @@ function zipServerFolder(zipPath, callback) {
   archive.finalize()
 }
 
-// ✅ 上傳到 Google Drive
+// ✅ 上傳到 Google Drive（含台灣時區命名）
 async function uploadToDrive(zipPath) {
+  const now = new Date()
+  const offset = now.getTime() + (8 * 60 * 60 * 1000)
+  const taipeiTime = new Date(offset)
+  const dateStr = taipeiTime.toISOString().split('T')[0]
+  const timeStr = taipeiTime.toISOString().split('T')[1].slice(0,5).replace(':', '-')
+  const fileName = `backup-${dateStr}_${timeStr}.zip`
+
   const fileMetadata = {
-    name: `backup-${new Date().toISOString().split('T')[0]}.zip`,
+    name: fileName,
     parents: [FOLDER_ID],
   }
 
@@ -75,17 +83,17 @@ async function uploadToDrive(zipPath) {
 
 // ✅ 執行備份
 function runBackup() {
-  const zipPath = path.join(__dirname, `server-backup-${Date.now()}.zip`)
+  const zipPath = path.join(__dirname, `server-backup-temp.zip`)
   zipServerFolder(zipPath, () => {
     uploadToDrive(zipPath)
   })
 }
 
-// ✅ 每天 00:30 自動備份
+// ✅ 每分鐘備份一次（測試用）
 cron.schedule('*/1 * * * *', () => {
-    console.log('⏰ 自動備份啟動...')
-    runBackup()
-  })
+  console.log('⏰ 自動備份啟動...')
+  runBackup()
+})
 
-// ✅ 啟動時也會立即備份一次（方便你測試）
+// ✅ 啟動立即備份一次
 runBackup()
