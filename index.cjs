@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3000
 
 
 require('./utils/globals')
+require('./zipAndUpload') // ⏰ 啟用每日 00:30 備份
+
 
 app.use(cors())
 app.use(bodyParser.json())
