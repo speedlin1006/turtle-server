@@ -4,20 +4,20 @@ const archiver = require('archiver')
 const { google } = require('googleapis')
 const cron = require('node-cron')
 
-// 你的 Google Service Account 金鑰 JSON 檔案
-const KEYFILEPATH = path.join(__dirname, 'sharp-effort-353719-b0812a41ea70.json')
+// ✅ 讀取環境變數中的金鑰 JSON 字串（Render 會自動注入）
+const credentials = JSON.parse(process.env.GCP_KEY_JSON)
 
-// 雲端硬碟要儲存的資料夾 ID
+// ✅ Google Drive 設定（你自己的資料夾 ID）
 const FOLDER_ID = '13tiOL5X_pzapGSlrYX7hc5idPSIKyk9v'
 
-// 初始化 Google Drive API 授權
+// ✅ 初始化 Google Drive API
 const auth = new google.auth.GoogleAuth({
-  keyFile: KEYFILEPATH,
+  credentials,
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 })
 const drive = google.drive({ version: 'v3', auth })
 
-// 建立 ZIP 檔案
+// ✅ 建立 ZIP 檔案
 function zipServerFolder(zipPath, callback) {
   const output = fs.createWriteStream(zipPath)
   const archive = archiver('zip', { zlib: { level: 9 } })
@@ -47,7 +47,7 @@ function zipServerFolder(zipPath, callback) {
   archive.finalize()
 }
 
-// 上傳 ZIP 到 Google 雲端硬碟
+// ✅ 上傳到 Google Drive
 async function uploadToDrive(zipPath) {
   const fileMetadata = {
     name: `backup-${new Date().toISOString().split('T')[0]}.zip`,
@@ -60,26 +60,20 @@ async function uploadToDrive(zipPath) {
   }
 
   try {
-    const res = await drive.files.create(
-      {
-        resource: fileMetadata,
-        media,
-        fields: 'id',
-        supportsAllDrives: true,
-      },
-      {
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-      }
-    )
+    const res = await drive.files.create({
+      resource: fileMetadata,
+      media,
+      fields: 'id',
+      supportsAllDrives: true,
+    })
     console.log('✅ 上傳成功，檔案 ID：', res.data.id)
-    fs.unlinkSync(zipPath) // 刪除本地 ZIP 檔案
+    fs.unlinkSync(zipPath)
   } catch (err) {
     console.error('❌ 上傳失敗：', err.message)
   }
 }
 
-// 執行備份流程
+// ✅ 執行備份
 function runBackup() {
   const zipPath = path.join(__dirname, `server-backup-${Date.now()}.zip`)
   zipServerFolder(zipPath, () => {
@@ -87,11 +81,11 @@ function runBackup() {
   })
 }
 
-// ✅ 每天凌晨 00:30 自動備份
-cron.schedule('30 0 * * *', () => {
+// ✅ 每天 00:30 自動備份
+cron.schedule('45 0 * * *', () => {
   console.log('⏰ 自動備份啟動...')
   runBackup()
 })
 
-// ✅ 保持常駐（不會讓程式自動結束）
-setInterval(() => {}, 1000 * 60 * 60)
+// ✅ 啟動時也會立即備份一次（方便你測試）
+runBackup()
