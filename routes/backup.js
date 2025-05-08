@@ -13,10 +13,10 @@ if (!fs.existsSync(BACKUP_DIR)) {
 
 // ✅ 建立 ZIP 壓縮檔
 function createBackupZip(callback) {
-    const now = new Date()
-    const dateStr = now.toISOString().split('T')[0]           // 2025-05-08
-    const timeStr = now.toTimeString().slice(0, 5).replace(':', '-') // 22-30
-    const zipFilename = `後端備份-${dateStr}_${timeStr}.zip`
+  const now = new Date()
+  const dateStr = now.toISOString().split('T')[0] // yyyy-mm-dd
+  const timeStr = now.toTimeString().slice(0, 5).replace(':', '-') // hh-mm
+  const zipFilename = `後端備份-${dateStr}_${timeStr}.zip`
   const zipPath = path.join(BACKUP_DIR, zipFilename)
 
   const output = fs.createWriteStream(zipPath)
@@ -33,14 +33,12 @@ function createBackupZip(callback) {
 
   archive.pipe(output)
 
-  // ✅ 壓縮整個專案（排除這些）
+  // ✅ 排除不需要的資料夾與壓縮本身
+  const EXCLUDE = ['node_modules', 'backups', '.git']
   fs.readdirSync(path.join(__dirname, '..')).forEach(file => {
-    if (
-      ['node_modules', 'backups', '.git'].includes(file) ||
-      file.endsWith('.zip')
-    ) return
-
     const fullPath = path.join(__dirname, '..', file)
+    if (EXCLUDE.includes(file) || file.endsWith('.zip')) return
+
     if (fs.statSync(fullPath).isDirectory()) {
       archive.directory(fullPath, file)
     } else {
@@ -75,7 +73,7 @@ router.get('/list', (req, res) => {
         return {
           filename,
           sizeKB: Math.round(stat.size / 1024),
-          createdAt: stat.birthtime,
+          createdAt: stat.mtime, // 用修改時間比 birthtime 更保險
         }
       })
       .sort((a, b) => b.createdAt - a.createdAt)
