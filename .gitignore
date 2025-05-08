@@ -15,4 +15,3 @@ Thumbs.db
 .env
 
 # ⛔ 排除本地備份壓縮檔
-/backups/
