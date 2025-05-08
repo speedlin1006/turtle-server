@@ -700,8 +700,10 @@
         "price": 2400
       }
     ],
-    "deleted": false,
-    "status": "未出單"
+    "deleted": true,
+    "status": "未出單",
+    "deleteReason": "123",
+    "deletedAt": "2025-05-08T02:10:24.969Z"
   },
   {
     "createdAt": "20250507150759671",

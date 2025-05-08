@@ -7,10 +7,7 @@ const fs = require('fs')
 const app = express()
 const PORT = process.env.PORT || 3000
 
-
 require('./utils/globals')
-require('./zipAndUpload') // ⏰ 啟用每日 00:30 備份
-
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -31,17 +28,18 @@ app.use('/api/logs', require('./routes/logs'))
 app.use('/api/client-users', require('./routes/clientUsers'))
 app.use('/api/care-users', require('./routes/careUsers'))
 app.use('/api/individuals', require('./routes/individuals'))
+app.use('/api/backup', require('./routes/backup'))
+
+
 
 // ✅ 自訂影片路由（避免自動下載）
 app.get('/turtle-details/:filename', (req, res) => {
   const filePath = path.join(__dirname, 'public/turtle-details', req.params.filename)
 
-  // 檢查檔案是否存在
   if (!fs.existsSync(filePath)) {
     return res.status(404).send('File not found')
   }
 
-  // 設定影片 Header
   if (filePath.endsWith('.mp4')) {
     res.setHeader('Content-Type', 'video/mp4')
     res.setHeader('Content-Disposition', 'inline')

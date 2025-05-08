@@ -10,3 +10,9 @@ sharp-effort-353719-b0812a41ea70.json
 # 可選：作業系統常見暫存檔（建議加上）
 .DS_Store
 Thumbs.db
+
+# ⛔ 避免 GCP 金鑰被誤上傳（超重要）
+.env
+
+# ⛔ 排除本地備份壓縮檔
+/backups/

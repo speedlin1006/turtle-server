@@ -379,5 +379,235 @@
     "reason": "555",
     "user": "測試帳號",
     "time": "2025-05-07T11:30:32.296Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T02:07:11.193Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "0000",
+    "name": "測試帳號",
+    "time": "2025-05-08T02:08:01.319Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T02:08:30.237Z"
+  },
+  {
+    "type": "修改商品",
+    "itemId": "17453902815617327",
+    "oldData": {
+      "name": "UVB 全光譜燈123",
+      "price": 1280,
+      "brand": "ReptiSun",
+      "description": "提供烏龜日照所需的 UVB 光線，內含燈座＋燈管",
+      "image": "/shop/1.jpg",
+      "qty": 1,
+      "id": "17453902815617327"
+    },
+    "newData": {
+      "name": "UVB 全光譜燈123",
+      "price": 12800,
+      "brand": "ReptiSun",
+      "description": "提供烏龜日照所需的 UVB 光線，內含燈座＋燈管",
+      "image": "/shop/1.jpg",
+      "qty": 1,
+      "id": "17453902815617327",
+      "user": "阿極"
+    },
+    "changes": {
+      "price": {
+        "from": 1280,
+        "to": 12800
+      },
+      "user": {
+        "to": "阿極"
+      }
+    },
+    "time": "2025-05-08T02:09:04.762Z",
+    "user": "阿極"
+  },
+  {
+    "type": "刪除訂單",
+    "createdAt": "20250507143150275",
+    "reason": "123",
+    "user": "阿極",
+    "time": "2025-05-08T02:10:24.971Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T02:13:14.756Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T02:13:38.528Z"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "1746617393391",
+    "time": "2025-05-08T02:14:54.267Z",
+    "user": "阿極"
+  },
+  {
+    "type": "新增商品",
+    "item": {
+      "name": "1",
+      "brand": "1",
+      "price": 1,
+      "description": "1",
+      "image": [
+        "/shop/1746670513120.jpg"
+      ],
+      "user": "阿極",
+      "id": "1746670513126"
+    },
+    "time": "2025-05-08T02:15:13.127Z",
+    "user": "阿極"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T02:42:55.551Z"
+  },
+  {
+    "type": "修改員工帳號",
+    "originalUsername": "0000",
+    "oldData": {
+      "username": "0000",
+      "password": "0000",
+      "name": "測試帳號"
+    },
+    "newData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "00000",
+      "name": "測試帳號"
+    },
+    "time": "2025-05-08T02:43:34.269Z",
+    "user": "阿極"
+  },
+  {
+    "type": "修改員工帳號",
+    "originalUsername": "0000",
+    "oldData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "00000",
+      "name": "測試帳號"
+    },
+    "newData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "0000",
+      "name": "測試帳號"
+    },
+    "time": "2025-05-08T02:43:38.507Z",
+    "user": "阿極"
+  },
+  {
+    "type": "修改員工帳號",
+    "originalUsername": "0000",
+    "oldData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "0000",
+      "name": "測試帳號"
+    },
+    "newData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "0000",
+      "name": "測試帳號000"
+    },
+    "time": "2025-05-08T02:43:46.778Z",
+    "user": "阿極"
+  },
+  {
+    "type": "修改員工帳號",
+    "originalUsername": "0000",
+    "oldData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "0000",
+      "name": "測試帳號000"
+    },
+    "newData": {
+      "originalUsername": "0000",
+      "username": "0000",
+      "password": "0000",
+      "name": "測試帳號"
+    },
+    "time": "2025-05-08T02:46:55.587Z",
+    "user": "阿極"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T11:51:54.040Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:27:14.007Z"
+  },
+  {
+    "type": "寄養登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:39:49.826Z"
+  },
+  {
+    "type": "寄養登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:39:50.702Z"
+  },
+  {
+    "type": "寄養登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:39:51.245Z"
+  },
+  {
+    "type": "寄養登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:39:51.394Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:39:58.908Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:49:46.244Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T14:57:10.447Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-08T15:12:25.358Z"
   }
 ]
