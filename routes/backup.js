@@ -11,6 +11,14 @@ if (!fs.existsSync(BACKUP_DIR)) {
   fs.mkdirSync(BACKUP_DIR)
 }
 
+// ✅ 從檔名中解析出建立時間
+function extractDateFromFilename(filename) {
+  const match = filename.match(/後端備份-(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2})/)
+  if (!match) return '未知時間'
+  const [_, date, time] = match
+  return `${date} ${time.replace('-', ':')}` // → '2025-05-09 09:45'
+}
+
 // ✅ 建立 ZIP 壓縮檔
 function createBackupZip(callback) {
   const now = new Date()
@@ -73,10 +81,10 @@ router.get('/list', (req, res) => {
         return {
           filename,
           sizeKB: Math.round(stat.size / 1024),
-          createdAt: stat.mtime, // 用修改時間比 birthtime 更保險
+          createdAt: extractDateFromFilename(filename)
         }
       })
-      .sort((a, b) => b.createdAt - a.createdAt)
+      .sort((a, b) => b.filename.localeCompare(a.filename)) // 以檔名順序排序
 
     res.json(backups)
   })

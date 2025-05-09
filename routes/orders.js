@@ -20,16 +20,16 @@ function readOrders() {
   }
 }
 
-// ✅ 自訂格式化 Order ID（如：20250506161520555 → 2025年05月06日 16:15:20.555）
+// ✅ 格式化 Order ID
 function formatOrderId(id) {
   return (
-    id.slice(0, 4) + '年' +   // 年
-    id.slice(4, 6) + '月' +   // 月
-    id.slice(6, 8) + '日 ' +  // 日
-    id.slice(8, 10) + ':' +   // 時
-    id.slice(10, 12) + ':' +  // 分
-    id.slice(12, 14) + '.' +  // 秒
-    id.slice(14)              // 毫秒
+    id.slice(0, 4) + '年' +
+    id.slice(4, 6) + '月' +
+    id.slice(6, 8) + '日 ' +
+    id.slice(8, 10) + ':' +
+    id.slice(10, 12) + ':' +
+    id.slice(12, 14) + '.' +
+    id.slice(14)
   )
 }
 
@@ -43,9 +43,9 @@ router.post('/', (req, res) => {
   const orders = readOrders()
   orders.push({
     ...order,
-    createdAt: order.createdAt || new Date().toISOString(), // 若前端沒傳則補上
+    createdAt: order.createdAt || new Date().toISOString(),
     deleted: false,
-    status: '未出單'
+    status: '未確認' // ✅ 修正為與前端一致
   })
 
   fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
@@ -56,22 +56,23 @@ router.post('/', (req, res) => {
     contact: order.contact,
     items: order.cart
   })
+
   res.status(201).json({ success: true })
 })
 
-// ✅ 查詢未刪除訂單（需要登入）
+// ✅ 查詢未刪除訂單（需登入）
 router.get('/', verifyToken, (req, res) => {
   const orders = readOrders()
   res.json(orders.filter(o => !o.deleted))
 })
 
-// ✅ 查詢已刪除訂單（需要登入）
+// ✅ 查詢已刪除訂單（需登入）
 router.get('/deleted', verifyToken, (req, res) => {
   const orders = readOrders()
   res.json(orders.filter(o => o.deleted))
 })
 
-// ✅ 刪除訂單（需要登入）
+// ✅ 刪除訂單（需登入）
 router.delete('/:createdAt', verifyToken, (req, res) => {
   const { createdAt } = req.params
   const { reason, user } = req.body
@@ -90,7 +91,7 @@ router.delete('/:createdAt', verifyToken, (req, res) => {
   res.json({ success: true })
 })
 
-// ✅ 修改訂單狀態（需要登入）
+// ✅ 修改訂單狀態（需登入）
 router.post('/status', verifyToken, (req, res) => {
   const { orderId, newStatus, user } = req.body
   if (!orderId || !newStatus) return res.status(400).json({ success: false })

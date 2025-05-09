@@ -9,5 +9,10 @@ exports.clientUsers = [
     "username": "0000",
     "password": "0000",
     "name": "測試帳號"
+  },
+  {
+    "username": "3333",
+    "password": "3333",
+    "name": "售後測試帳號"
   }
 ]
