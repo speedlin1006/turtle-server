@@ -59,12 +59,20 @@ router.post('/', async (req, res) => {
   })
 
   try {
-    const { name, phone, address, line } = newOrder.contact
+    const { name, phone, address } = newOrder.contact
+    const lineContact = newOrder.contact.line || newOrder.contact.lineId || newOrder.contact.lineName || '未提供'
+
+    console.log('🧾 新訂單聯絡資料：', newOrder.contact)
+    console.log('🧾 商品清單：', newOrder.cart)
+
     const items = newOrder.cart
-      .map(item => `${item.name} x${item.quantity}（單價：$${item.price}）`)
+      .map(item => {
+        const quantity = item.quantity || 1
+        return `${item.name} x${quantity}（單價：$${item.price}）`
+      })
       .join('\n')
 
-    const message = `有新訂單成立！\n\n姓名：${name}\n電話：${phone}\n地址：${address}\nLINE 聯絡方式：${line}\n\n商品內容：\n${items}`
+    const message = `有新訂單成立！\n\n姓名：${name}\n電話：${phone}\n地址：${address}\nLINE 聯絡方式：${lineContact}\n\n商品內容：\n${items}`
 
     await sendLineNotify(message)
   } catch (err) {
