@@ -53,38 +53,15 @@ app.get('/test', (req, res) => {
   res.send('API OK')
 })
 
-// ✅ LINE Webhook 接收訊息（Bot 自動回應）
+// ✅ LINE Webhook 接收訊息（只印出使用者 ID，不自動回覆）
 app.post('/webhook/line', async (req, res) => {
   try {
     const events = req.body.events
     for (const event of events) {
       if (event.type === 'message' && event.message.type === 'text') {
-        const replyToken = event.replyToken
-        const userMsg = event.message.text
         const userId = event.source?.userId
-
-        // ✅ 印出 userId（這個很重要）
         console.log('👤 來自使用者的 LINE ID：', userId)
-
-        // ✅ 自動回覆訊息
-        await axios.post(
-          'https://api.line.me/v2/bot/message/reply',
-          {
-            replyToken,
-            messages: [
-              {
-                type: 'text',
-                text: `✅ 收到你的訊息：「${userMsg}」`
-              }
-            ]
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`
-            }
-          }
-        )
+        // ✅ 不回覆訊息，只印出 userId
       }
     }
     res.status(200).end()
@@ -111,4 +88,3 @@ mongoose
   })
 
 console.log('🚀 這是我的 turtle-server，正在啟動')
-// ✅ 已加入列印 userId 的功能（手動修改）
