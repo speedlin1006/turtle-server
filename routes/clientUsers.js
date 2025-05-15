@@ -1,55 +1,41 @@
-const express = require('express')
-const fs = require('fs')
-const path = require('path')
-const router = express.Router()
-const { verifyToken, logOperation } = require('../utils/helpers')
+// routes/clientUsers.js
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
 
-const filePath = path.join(__dirname, '../clientUsers.json')
+// ✅ 取得所有售後帳號（role = 'client'）
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find({ role: 'client' });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: '無法取得售後帳號資料' });
+  }
+});
 
-// 初始化
-if (!fs.existsSync(filePath)) {
-  fs.writeFileSync(filePath, JSON.stringify([]))
-}
+// ✅ 新增售後帳號
+router.post('/', async (req, res) => {
+  const { username, password, name } = req.body;
+  try {
+    const exists = await User.findOne({ username, role: 'client' });
+    if (exists) return res.status(409).json({ error: '帳號已存在' });
 
-// 取得全部使用者
-router.get('/', verifyToken, (req, res) => {
-  const users = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-  res.json(users.filter(u => !u.deleted))
-})
+    const newUser = new User({ username, password, name, role: 'client' });
+    await newUser.save();
+    res.json({ success: true, message: '新增成功' });
+  } catch (err) {
+    res.status(500).json({ error: '新增失敗' });
+  }
+});
 
-// 取得已刪除使用者
-router.get('/deleted', verifyToken, (req, res) => {
-  const users = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-  res.json(users.filter(u => u.deleted))
-})
+// ✅ 刪除售後帳號
+router.delete('/:username', async (req, res) => {
+  try {
+    await User.deleteOne({ username: req.params.username, role: 'client' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '刪除失敗' });
+  }
+});
 
-// 新增使用者
-router.post('/', verifyToken, (req, res) => {
-  const { username } = req.body
-  if (!username) return res.status(400).json({ success: false })
-
-  const users = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-  users.push({ ...req.body, createdAt: new Date().toISOString(), deleted: false })
-
-  fs.writeFileSync(filePath, JSON.stringify(users, null, 2))
-  logOperation({ type: '新增寄養使用者', username }, req)
-  res.json({ success: true })
-})
-
-// 軟刪除使用者
-router.delete('/:username', verifyToken, (req, res) => {
-  const { username } = req.params
-  const users = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-  const index = users.findIndex(u => u.username === username)
-
-  if (index === -1) return res.status(404).json({ success: false })
-
-  users[index].deleted = true
-  users[index].deletedAt = new Date().toISOString()
-
-  fs.writeFileSync(filePath, JSON.stringify(users, null, 2))
-  logOperation({ type: '刪除寄養使用者', username }, req)
-  res.json({ success: true })
-})
-
-module.exports = router
+module.exports = router;

@@ -1,54 +1,63 @@
-const express = require('express')
-const crypto = require('crypto')
-const fs = require('fs')
-const path = require('path')
+const express = require('express');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
 
-// ✅ 各類帳號資料（從 users 資料夾引入）
-const { users } = require('../users/users')
-const { careUsers } = require('../users/careUsers')
-const { clientUsers } = require('../users/clientUsers')
-const { memberUsers } = require('../users/memberUsers')
+const router = express.Router();
+const logsPath = path.join(__dirname, '../operationLogs.json');
 
-const router = express.Router()
-const logsPath = path.join(__dirname, '../operationLogs.json')
+// ✅ 匯入 MongoDB 使用者模型
+const User = require('../models/User'); // 你稍後要建立這個檔案
 
+// ✅ 日誌紀錄
 function logOperation(record) {
-  const logs = JSON.parse(fs.readFileSync(logsPath, 'utf-8') || '[]')
-  logs.push({ ...record, time: new Date().toISOString() })
-  fs.writeFileSync(logsPath, JSON.stringify(logs, null, 2))
+  const logs = JSON.parse(fs.readFileSync(logsPath, 'utf-8') || '[]');
+  logs.push({ ...record, time: new Date().toISOString() });
+  fs.writeFileSync(logsPath, JSON.stringify(logs, null, 2));
 }
 
-function addLoginRoute(route, userList, type) {
-  router.post(route, (req, res) => {
-    const user = userList.find(
-      u => u.username === req.body.username && u.password === req.body.password
-    )
-    if (user) {
-      const token = crypto.randomBytes(32).toString('hex')
+// ✅ 建立登入路由，根據角色登入
+function addLoginRoute(route, role, typeName) {
+  router.post(route, async (req, res) => {
+    const { username, password } = req.body;
 
-      // ✅ 將帳號與名稱都儲存到全域 token 中
-      global.activeTokens[token] = {
-        username: user.username,
-        name: user.name
+    try {
+      // 查詢 MongoDB 的 users 集合
+      const user = await User.findOne({ username, password, role });
+
+      if (!user) {
+        return res.status(401).json({ success: false, message: '帳號或密碼錯誤' });
       }
 
-      // ✅ 登入成功寫入日誌
-      logOperation({ type: `${type}登入成功`, username: user.username, name: user.name }, req)
+      const token = crypto.randomBytes(32).toString('hex');
 
-      const response = { success: true, token }
-      if (user.name) response.name = user.name
-      if (user.username) response.username = user.username
-      return res.json(response)
-    } else {
-      return res.status(401).json({ success: false })
+      // 將登入資訊儲存至全域變數
+      global.activeTokens[token] = {
+        username: user.username,
+        name: user.name,
+      };
+
+      // 寫入登入成功紀錄
+      logOperation({ type: `${typeName}登入成功`, username: user.username, name: user.name }, req);
+
+      res.json({
+        success: true,
+        token,
+        username: user.username,
+        name: user.name,
+      });
+    } catch (err) {
+      console.error('❌ 登入錯誤：', err);
+      res.status(500).json({ success: false, message: '伺服器錯誤' });
     }
-  })
+  });
 }
 
-// ✅ 掛載路由（根據 index.cjs 設定為 app.use('/login', ...））
-addLoginRoute('/', users, '員工')
-addLoginRoute('/care', careUsers, '寄養')
-addLoginRoute('/client', clientUsers, '售後')
-addLoginRoute('/member', memberUsers, '會員') 
+// ✅ 註冊四種登入角色
+addLoginRoute('/', 'staff', '員工');
+addLoginRoute('/care', 'care', '寄養');
+addLoginRoute('/client', 'client', '售後');
+addLoginRoute('/member', 'member', '會員');
 
-module.exports = router
+module.exports = router;
