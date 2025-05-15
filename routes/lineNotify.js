@@ -7,10 +7,13 @@ require('dotenv').config()
 // ✅ 傳送 LINE 通知函式
 const sendLineNotify = async (message) => {
   try {
+    const userId = process.env.LINE_ADMIN_USER_ID
+    if (!userId) throw new Error('LINE_ADMIN_USER_ID 未設定')
+
     await axios.post(
       'https://api.line.me/v2/bot/message/push',
       {
-        to: process.env.LINE_ADMIN_USER_ID, // ✅ 你自己的 LINE 使用者 ID，必要
+        to: userId,
         messages: [
           {
             type: 'text',
@@ -25,6 +28,7 @@ const sendLineNotify = async (message) => {
         }
       }
     )
+    console.log('✅ 已成功傳送 LINE 通知')
   } catch (err) {
     console.error('❌ 傳送 LINE 通知失敗：', err.response?.data || err.message)
   }
