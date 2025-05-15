@@ -59,16 +59,13 @@ router.post('/', async (req, res) => {
   })
 
   try {
-    const { name, phone, address } = newOrder.contact
-    const lineContact = newOrder.contact.line || newOrder.contact.lineId || newOrder.contact.lineName || '未提供'
-
-    console.log('🧾 新訂單聯絡資料：', newOrder.contact)
-    console.log('🧾 商品清單：', newOrder.cart)
+    const { name, phone, address, bankcode } = newOrder.contact
+    const lineContact = bankcode || '未提供'
 
     const items = newOrder.cart
       .map(item => {
-        const quantity = item.quantity || 1
-        return `${item.name} x${quantity}（單價：$${item.price}）`
+        const qty = item.qty || item.quantity || 1
+        return `${item.name} x${qty}（單價：$${item.price}）`
       })
       .join('\n')
 
