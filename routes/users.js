@@ -2,9 +2,10 @@ const express = require('express')
 const fs = require('fs')
 const path = require('path')
 const router = express.Router()
-const { users } = require('../users')
-const { careUsers } = require('../careUsers')
-const { clientUsers } = require('../clientUsers')
+const { users } = require('../users/users')
+const { careUsers } = require('../users/careUsers')
+const { clientUsers } = require('../users/clientUsers')
+const { memberUsers } = require('../users/memberUsers') 
 const { verifyToken, logOperation } = require('../utils/helpers')
 
 // ✅ 通用權限檢查

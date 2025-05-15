@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const router = express.Router()
 const { verifyToken, logOperation } = require('../utils/helpers')
+const { sendLineNotify } = require('./lineNotify')
 
 const ordersPath = path.join(__dirname, '../orders.json')
 
@@ -34,28 +35,35 @@ function formatOrderId(id) {
 }
 
 // ✅ 前台公開：新增訂單（不需驗證）
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const order = req.body
   if (!order || !order.contact || !order.cart) {
     return res.status(400).json({ success: false })
   }
 
   const orders = readOrders()
-  orders.push({
+  const newOrder = {
     ...order,
     createdAt: order.createdAt || new Date().toISOString(),
     deleted: false,
-    status: '未確認' // ✅ 修正為與前端一致
-  })
-
+    status: '未確認'
+  }
+  orders.push(newOrder)
   fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
 
   logOperation({
     type: '新增訂單',
-    orderId: order.createdAt,
-    contact: order.contact,
-    items: order.cart
+    orderId: newOrder.createdAt,
+    contact: newOrder.contact,
+    items: newOrder.cart
   })
+
+  try {
+    const message = `✅ 有新訂單成立\n👤 姓名：${newOrder.contact.name}\n📦 數量：${newOrder.cart.length}\n🕓 時間：${formatOrderId(newOrder.createdAt)}`
+    await sendLineNotify(message)
+  } catch (err) {
+    console.warn('⚠️ 傳送 LINE 通知失敗', err.message)
+  }
 
   res.status(201).json({ success: true })
 })

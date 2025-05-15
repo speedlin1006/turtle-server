@@ -896,5 +896,187 @@
     "username": "2222",
     "name": "寄養測試帳號",
     "time": "2025-05-09T06:37:47.885Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-10T03:33:05.442Z"
+  },
+  {
+    "type": "會員登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-10T03:35:00.906Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-12T01:00:33.734Z"
+  },
+  {
+    "type": "會員登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-12T01:03:56.822Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-12T01:07:17.742Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-13T02:34:02.225Z"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "1746670513126",
+    "time": "2025-05-13T02:34:08.748Z",
+    "user": "阿極"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-13T08:45:13.682Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-14T02:45:48.103Z"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-14T02:49:14.907Z"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "6822ad987dac26ff86f2e927",
+    "time": "2025-05-14T03:55:24.512Z",
+    "user": "阿極"
+  },
+  {
+    "type": "修改商品",
+    "itemId": "6822ad987dac26ff86f2e928",
+    "newData": {
+      "_id": "6822ad987dac26ff86f2e928",
+      "name": "1",
+      "price": 1,
+      "status": "上架",
+      "description": "2",
+      "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747124564/turtle-shop/leipbq0jf7mml51xzjli.jpg",
+      "video": "",
+      "breedId": "",
+      "__v": 0,
+      "createdAt": "2025-05-13T02:25:28.276Z",
+      "updatedAt": "2025-05-13T08:31:27.107Z",
+      "user": "阿極"
+    },
+    "time": "2025-05-14T03:55:29.847Z",
+    "user": "阿極"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-14T03:55:36.767Z"
+  },
+  {
+    "type": "新增商品",
+    "item": {
+      "name": "3",
+      "price": 3,
+      "description": "3",
+      "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747195182/turtle-shop/1747195177373.heic",
+      "_id": "68241530977102fd7c8583da",
+      "createdAt": "2025-05-14T03:59:44.624Z",
+      "updatedAt": "2025-05-14T03:59:44.624Z",
+      "__v": 0
+    },
+    "time": "2025-05-14T03:59:44.733Z",
+    "user": "阿極"
+  },
+  {
+    "type": "新增商品",
+    "item": {
+      "name": "4",
+      "price": 4,
+      "description": "4",
+      "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747196447/turtle-shop/1747196442435.heic",
+      "_id": "68241a22977102fd7c8583de",
+      "createdAt": "2025-05-14T04:20:50.623Z",
+      "updatedAt": "2025-05-14T04:20:50.623Z",
+      "__v": 0
+    },
+    "time": "2025-05-14T04:20:50.740Z",
+    "user": "阿極"
+  },
+  {
+    "type": "新增商品",
+    "item": {
+      "name": "5",
+      "price": 5,
+      "description": "5",
+      "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747196604/turtle-shop/1747196603807.png",
+      "_id": "68241abd977102fd7c8583e2",
+      "createdAt": "2025-05-14T04:23:25.472Z",
+      "updatedAt": "2025-05-14T04:23:25.472Z",
+      "__v": 0
+    },
+    "time": "2025-05-14T04:23:25.601Z",
+    "user": "阿極"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "68241a22977102fd7c8583de",
+    "time": "2025-05-14T04:23:32.849Z",
+    "user": "阿極"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "68241530977102fd7c8583da",
+    "time": "2025-05-14T04:23:34.897Z",
+    "user": "阿極"
+  },
+  {
+    "type": "員工登入成功",
+    "username": "pt001",
+    "name": "阿極",
+    "time": "2025-05-14T04:43:49.045Z"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "68241abd977102fd7c8583e2",
+    "time": "2025-05-14T04:44:04.452Z",
+    "user": "阿極"
+  },
+  {
+    "type": "新增商品",
+    "item": {
+      "name": "1",
+      "price": 1,
+      "description": "1",
+      "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747198316/turtle-shop/1747198315115.png",
+      "_id": "6824216d3c3c6da4da11211e",
+      "createdAt": "2025-05-14T04:51:57.106Z",
+      "updatedAt": "2025-05-14T04:51:57.106Z",
+      "__v": 0
+    },
+    "time": "2025-05-14T04:51:57.206Z",
+    "user": "阿極"
+  },
+  {
+    "type": "刪除商品",
+    "itemId": "6824216d3c3c6da4da11211e",
+    "time": "2025-05-14T04:52:25.514Z",
+    "user": "阿極"
   }
 ]

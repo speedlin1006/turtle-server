@@ -1,11 +1,13 @@
-// routes/login.js
 const express = require('express')
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
-const { users } = require('../users')
-const { careUsers } = require('../careUsers')
-const { clientUsers } = require('../clientUsers')
+
+// ✅ 各類帳號資料（從 users 資料夾引入）
+const { users } = require('../users/users')
+const { careUsers } = require('../users/careUsers')
+const { clientUsers } = require('../users/clientUsers')
+const { memberUsers } = require('../users/memberUsers')
 
 const router = express.Router()
 const logsPath = path.join(__dirname, '../operationLogs.json')
@@ -24,13 +26,13 @@ function addLoginRoute(route, userList, type) {
     if (user) {
       const token = crypto.randomBytes(32).toString('hex')
 
-      // ✅ 將帳號與名稱都儲存到 token 中
+      // ✅ 將帳號與名稱都儲存到全域 token 中
       global.activeTokens[token] = {
         username: user.username,
         name: user.name
       }
 
-      // ✅ 日誌中也記錄名稱
+      // ✅ 登入成功寫入日誌
       logOperation({ type: `${type}登入成功`, username: user.username, name: user.name }, req)
 
       const response = { success: true, token }
@@ -43,9 +45,10 @@ function addLoginRoute(route, userList, type) {
   })
 }
 
-// ✅ 請注意：這裡的路徑要配合 index.cjs 中掛載的 /login
+// ✅ 掛載路由（根據 index.cjs 設定為 app.use('/login', ...））
 addLoginRoute('/', users, '員工')
 addLoginRoute('/care', careUsers, '寄養')
 addLoginRoute('/client', clientUsers, '售後')
+addLoginRoute('/member', memberUsers, '會員') 
 
 module.exports = router
