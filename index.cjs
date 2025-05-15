@@ -61,7 +61,12 @@ app.post('/webhook/line', async (req, res) => {
       if (event.type === 'message' && event.message.type === 'text') {
         const replyToken = event.replyToken
         const userMsg = event.message.text
+        const userId = event.source?.userId
 
+        // ✅ 印出 userId（這個很重要）
+        console.log('👤 來自使用者的 LINE ID：', userId)
+
+        // ✅ 自動回覆訊息
         await axios.post(
           'https://api.line.me/v2/bot/message/reply',
           {
@@ -106,3 +111,4 @@ mongoose
   })
 
 console.log('🚀 這是我的 turtle-server，正在啟動')
+// ✅ 已加入列印 userId 的功能（手動修改）
