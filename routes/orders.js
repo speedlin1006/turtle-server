@@ -59,7 +59,13 @@ router.post('/', async (req, res) => {
   })
 
   try {
-    const message = `✅ 有新訂單成立\n👤 姓名：${newOrder.contact.name}\n📦 數量：${newOrder.cart.length}\n🕓 時間：${formatOrderId(newOrder.createdAt)}`
+    const { name, phone, address, line } = newOrder.contact
+    const items = newOrder.cart
+      .map(item => `${item.name} x${item.quantity}（單價：$${item.price}）`)
+      .join('\n')
+
+    const message = `有新訂單成立！\n\n姓名：${name}\n電話：${phone}\n地址：${address}\nLINE 聯絡方式：${line}\n\n商品內容：\n${items}`
+
     await sendLineNotify(message)
   } catch (err) {
     console.warn('⚠️ 傳送 LINE 通知失敗', err.message)
