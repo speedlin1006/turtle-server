@@ -1,25 +1,8 @@
-const express = require('express')
-const fs = require('fs')
-const path = require('path')
-const router = express.Router()
-const { verifyToken, logOperation } = require('../utils/helpers')
-const { sendLineNotify } = require('./lineNotify')
-
-const ordersPath = path.join(__dirname, '../orders.json')
-
-// 初始化訂單檔案
-if (!fs.existsSync(ordersPath)) {
-  fs.writeFileSync(ordersPath, JSON.stringify([]))
-}
-
-function readOrders() {
-  try {
-    const data = fs.readFileSync(ordersPath, 'utf-8')
-    return JSON.parse(data)
-  } catch {
-    return []
-  }
-}
+const express = require('express');
+const router = express.Router();
+const Order = require('../models/Order');
+const { verifyToken, logOperation } = require('../utils/helpers');
+const { sendLineNotify } = require('./lineNotify');
 
 // ✅ 格式化 Order ID
 function formatOrderId(id) {
@@ -31,105 +14,112 @@ function formatOrderId(id) {
     id.slice(10, 12) + ':' +
     id.slice(12, 14) + '.' +
     id.slice(14)
-  )
+  );
 }
 
-// ✅ 前台公開：新增訂單（不需驗證）
+// ✅ 前台公開：新增訂單（不需登入）
 router.post('/', async (req, res) => {
-  const order = req.body
+  const order = req.body;
   if (!order || !order.contact || !order.cart) {
-    return res.status(400).json({ success: false })
+    return res.status(400).json({ success: false });
   }
 
-  const orders = readOrders()
-  const newOrder = {
+  const newOrder = new Order({
     ...order,
     createdAt: order.createdAt || new Date().toISOString(),
     deleted: false,
     status: '未確認'
-  }
-  orders.push(newOrder)
-  fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
+  });
+
+  await newOrder.save();
 
   logOperation({
     type: '新增訂單',
     orderId: newOrder.createdAt,
     contact: newOrder.contact,
     items: newOrder.cart
-  })
+  });
 
   try {
-    const { name, phone, address, bankcode } = newOrder.contact
-    const lineContact = bankcode || '未提供'
+    const { name, phone, address, bankcode } = newOrder.contact;
+    const lineContact = bankcode || '未提供';
 
     const items = newOrder.cart
       .map(item => {
-        const qty = item.qty || item.quantity || 1
-        return `${item.name} x${qty}（單價：$${item.price}）`
+        const qty = item.qty || item.quantity || 1;
+        return `${item.name} x${qty}（單價：$${item.price}）`;
       })
-      .join('\n')
+      .join('\n');
 
-    const message = `有新訂單成立！\n\n姓名：${name}\n電話：${phone}\n地址：${address}\nLINE 聯絡方式：${lineContact}\n\n商品內容：\n${items}`
+    const message = `有新訂單成立！\n\n姓名：${name}\n電話：${phone}\n地址：${address}\nLINE 聯絡方式：${lineContact}\n\n商品內容：\n${items}`;
 
-    await sendLineNotify(message)
+    await sendLineNotify(message);
   } catch (err) {
-    console.warn('⚠️ 傳送 LINE 通知失敗', err.message)
+    console.warn('⚠️ 傳送 LINE 通知失敗', err.message);
   }
 
-  res.status(201).json({ success: true })
-})
+  res.status(201).json({ success: true });
+});
 
 // ✅ 查詢未刪除訂單（需登入）
-router.get('/', verifyToken, (req, res) => {
-  const orders = readOrders()
-  res.json(orders.filter(o => !o.deleted))
-})
+router.get('/', verifyToken, async (req, res) => {
+  const orders = await Order.find({ deleted: false }).sort({ createdAt: -1 });
+  res.json(orders);
+});
 
 // ✅ 查詢已刪除訂單（需登入）
-router.get('/deleted', verifyToken, (req, res) => {
-  const orders = readOrders()
-  res.json(orders.filter(o => o.deleted))
-})
+router.get('/deleted', verifyToken, async (req, res) => {
+  const orders = await Order.find({ deleted: true }).sort({ deletedAt: -1 });
+  res.json(orders);
+});
 
 // ✅ 刪除訂單（需登入）
-router.delete('/:createdAt', verifyToken, (req, res) => {
-  const { createdAt } = req.params
-  const { reason, user } = req.body
-  const orders = readOrders()
+router.delete('/:createdAt', verifyToken, async (req, res) => {
+  const { createdAt } = req.params;
+  const { reason, user } = req.body;
 
-  const index = orders.findIndex(order => String(order.createdAt) === String(createdAt))
-  if (index === -1) return res.status(404).json({ success: false })
+  console.log('🗑️ 收到刪除請求：', { createdAt, reason, user }); // ← 新增 log
 
-  orders[index].deleted = true
-  orders[index].deleteReason = reason
-  orders[index].deletedAt = new Date().toISOString()
+  const updated = await Order.findOneAndUpdate(
+    { createdAt },
+    {
+      deleted: true,
+      deleteReason: reason || '',
+      deletedAt: new Date().toISOString()
+    },
+    { new: true }
+  );
 
-  fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
-  logOperation({ type: '刪除訂單', createdAt, reason, user: user || '未知使用者' }, req)
+  if (!updated) return res.status(404).json({ success: false });
 
-  res.json({ success: true })
-})
+  logOperation({
+    type: '刪除訂單',
+    createdAt,
+    reason,
+    user: user || '未知使用者'
+  }, req);
+
+  res.json({ success: true });
+});
 
 // ✅ 修改訂單狀態（需登入）
-router.post('/status', verifyToken, (req, res) => {
-  const { orderId, newStatus, user } = req.body
-  if (!orderId || !newStatus) return res.status(400).json({ success: false })
+router.post('/status', verifyToken, async (req, res) => {
+  const { orderId, newStatus, user } = req.body;
+  if (!orderId || !newStatus) return res.status(400).json({ success: false });
 
-  const orders = readOrders()
-  const index = orders.findIndex(order => String(order.createdAt) === String(orderId))
-  if (index === -1) return res.status(404).json({ success: false })
+  const order = await Order.findOne({ createdAt: orderId });
+  if (!order) return res.status(404).json({ success: false });
 
-  const oldStatus = orders[index].status || '未設定'
-  orders[index].status = newStatus
-  orders[index].statusUpdatedAt = new Date().toISOString()
+  const oldStatus = order.status || '未設定';
+  order.status = newStatus;
+  order.statusUpdatedAt = new Date().toISOString();
+  await order.save();
 
-  fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2))
-
-  let orderNo = ''
+  let orderNo = '';
   try {
-    orderNo = formatOrderId(orderId)
+    orderNo = formatOrderId(orderId);
   } catch {
-    orderNo = '[轉換失敗]'
+    orderNo = '[轉換失敗]';
   }
 
   logOperation({
@@ -139,9 +129,9 @@ router.post('/status', verifyToken, (req, res) => {
     oldStatus,
     newStatus,
     user: user || '未知使用者'
-  })
+  });
 
-  res.json({ success: true })
-})
+  res.json({ success: true });
+});
 
-module.exports = router
+module.exports = router;

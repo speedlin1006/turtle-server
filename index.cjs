@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000
 require('./utils/globals')
 
 app.use(cors())
-app.use(bodyParser.json())
+app.use(express.json({ type: ['application/json', 'application/*+json'] }))
 
 // ✅ 靜態資源
 app.use(express.static('public'))
