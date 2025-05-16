@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { v2: cloudinary } = require('cloudinary') // ✅ 圖床 SDK
 const { verifyToken, logOperation } = require('../utils/helpers')
-const Shop = require('../models/shop')
+const Shop = require('../models/Shop')
 
 // ✅ 搜尋商品
 router.get('/search', async (req, res) => {
