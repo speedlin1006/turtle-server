@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Order = require('../models/Order');
+const Order = require('../models/order');
 const { verifyToken, logOperation } = require('../utils/helpers');
 const { sendLineNotify } = require('./lineNotify');
 
