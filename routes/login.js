@@ -1,21 +1,12 @@
 const express = require('express');
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const mongoose = require('mongoose');
-
 const router = express.Router();
-const logsPath = path.join(__dirname, '../operationLogs.json');
 
 // ✅ 匯入 MongoDB 使用者模型
-const User = require('../models/User'); // 你稍後要建立這個檔案
+const User = require('../models/User');
 
-// ✅ 日誌紀錄
-function logOperation(record) {
-  const logs = JSON.parse(fs.readFileSync(logsPath, 'utf-8') || '[]');
-  logs.push({ ...record, time: new Date().toISOString() });
-  fs.writeFileSync(logsPath, JSON.stringify(logs, null, 2));
-}
+// ✅ 匯入記錄操作日誌的工具
+const { logOperation } = require('../utils/logHelper');
 
 // ✅ 建立登入路由，根據角色登入
 function addLoginRoute(route, role, typeName) {
@@ -38,8 +29,14 @@ function addLoginRoute(route, role, typeName) {
         name: user.name,
       };
 
-      // 寫入登入成功紀錄
-      logOperation({ type: `${typeName}登入成功`, username: user.username, name: user.name }, req);
+      // ✅ 寫入登入成功紀錄（標準格式）
+      await logOperation({
+        type: `${typeName}登入成功`,
+        user: user.username,
+        details: {
+          name: user.name
+        }
+      });
 
       res.json({
         success: true,

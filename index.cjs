@@ -61,7 +61,6 @@ app.post('/webhook/line', async (req, res) => {
       if (event.type === 'message' && event.message.type === 'text') {
         const userId = event.source?.userId
         console.log('👤 來自使用者的 LINE ID：', userId)
-        // ✅ 不回覆訊息，只印出 userId
       }
     }
     res.status(200).end()
@@ -71,12 +70,9 @@ app.post('/webhook/line', async (req, res) => {
   }
 })
 
-// ✅ 啟動伺服器
+// ✅ 啟動伺服器（不再傳 deprecated 參數）
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ 成功連線至 MongoDB Atlas')
     app.listen(PORT, () => {

@@ -4,7 +4,8 @@ const fs = require('fs')
 const path = require('path')
 const multer = require('multer')
 const router = express.Router()
-const { verifyToken, logOperation } = require('../utils/helpers')
+const { verifyToken } = require('../utils/helpers');
+const { logOperation } = require('../utils/logHelper');
 
 const dataPath = path.join(__dirname, '../public/breeds.json')
 const imageFolder = path.join(__dirname, '../public/turtle-breeds')

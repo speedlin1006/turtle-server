@@ -1,8 +1,8 @@
-// routes/careClientUserDetails.js（資料庫版本）
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { verifyToken, logOperation } = require('../utils/helpers');
+const { verifyToken } = require('../utils/helpers');
+const { logOperation } = require('../utils/logHelper');
 
 // ✅ 查詢尚未刪除的售後帳號
 router.get('/', verifyToken, async (req, res) => {
@@ -28,13 +28,34 @@ router.get('/deleted', verifyToken, async (req, res) => {
 router.post('/', verifyToken, async (req, res) => {
   const { username, password, name } = req.body;
   if (!username) return res.status(400).json({ success: false });
+
   try {
     const exists = await User.findOne({ username, role: 'client' });
     if (exists) return res.status(409).json({ success: false });
 
-    const newUser = new User({ username, password, name, role: 'client', deleted: false, createdAt: new Date() });
+    const newUser = new User({
+      username,
+      password,
+      name,
+      role: 'client',
+      deleted: false,
+      createdAt: new Date()
+    });
+
     await newUser.save();
-    logOperation({ type: '新增售後使用者', username }, req);
+
+    await logOperation({
+      type: '新增售後使用者',
+      user: req.user?.username || '未知',
+      details: {
+        newData: {
+          username,
+          password,
+          name
+        }
+      }
+    });
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false });
@@ -44,13 +65,23 @@ router.post('/', verifyToken, async (req, res) => {
 // ✅ 軟刪除售後使用者（標記 deleted: true）
 router.delete('/:username', verifyToken, async (req, res) => {
   const { username } = req.params;
+
   try {
     const user = await User.findOneAndUpdate(
       { username, role: 'client' },
       { deleted: true, deletedAt: new Date() }
     );
+
     if (!user) return res.status(404).json({ success: false });
-    logOperation({ type: '刪除售後使用者', username }, req);
+
+    await logOperation({
+      type: '刪除售後使用者',
+      user: req.user?.username || '未知',
+      details: {
+        oldData: user
+      }
+    });
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false });

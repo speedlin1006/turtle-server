@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/order');
-const { verifyToken, logOperation } = require('../utils/helpers');
+const { verifyToken } = require('../utils/helpers');
+const { logOperation } = require('../utils/logHelper');
 const { sendLineNotify } = require('./lineNotify');
 
-// ✅ 格式化 Order ID
+// ✅ 格式化 Order ID 顯示用
 function formatOrderId(id) {
   return (
     id.slice(0, 4) + '年' +
@@ -16,8 +17,8 @@ function formatOrderId(id) {
     id.slice(14)
   );
 }
-//123
-// ✅ 前台公開：新增訂單（不需登入）
+
+// ✅ 新增訂單（不需登入）
 router.post('/', async (req, res) => {
   const order = req.body;
   if (!order || !order.contact || !order.cart) {
@@ -33,11 +34,14 @@ router.post('/', async (req, res) => {
 
   await newOrder.save();
 
-  logOperation({
+  await logOperation({
     type: '新增訂單',
-    orderId: newOrder.createdAt,
-    contact: newOrder.contact,
-    items: newOrder.cart
+    user: order.user || '未知',
+    details: {
+      orderId: newOrder.createdAt,
+      contact: newOrder.contact,
+      items: newOrder.cart
+    }
   });
 
   try {
@@ -61,24 +65,22 @@ router.post('/', async (req, res) => {
   res.status(201).json({ success: true });
 });
 
-// ✅ 查詢未刪除訂單（需登入）
+// ✅ 查詢未刪除訂單
 router.get('/', verifyToken, async (req, res) => {
   const orders = await Order.find({ deleted: false }).sort({ createdAt: -1 });
   res.json(orders);
 });
 
-// ✅ 查詢已刪除訂單（需登入）
+// ✅ 查詢已刪除訂單
 router.get('/deleted', verifyToken, async (req, res) => {
   const orders = await Order.find({ deleted: true }).sort({ deletedAt: -1 });
   res.json(orders);
 });
 
-// ✅ 刪除訂單（需登入）
+// ✅ 刪除訂單
 router.delete('/:createdAt', verifyToken, async (req, res) => {
   const { createdAt } = req.params;
   const { reason, user } = req.body;
-
-  console.log('🗑️ 收到刪除請求：', { createdAt, reason, user }); // ← 新增 log
 
   const updated = await Order.findOneAndUpdate(
     { createdAt },
@@ -92,17 +94,19 @@ router.delete('/:createdAt', verifyToken, async (req, res) => {
 
   if (!updated) return res.status(404).json({ success: false });
 
-  logOperation({
+  await logOperation({
     type: '刪除訂單',
-    createdAt,
-    reason,
-    user: user || '未知使用者'
-  }, req);
+    user: user || '未知',
+    details: {
+      orderId: createdAt,
+      reason: reason || ''
+    }
+  });
 
   res.json({ success: true });
 });
 
-// ✅ 修改訂單狀態（需登入）
+// ✅ 修改訂單狀態
 router.post('/status', verifyToken, async (req, res) => {
   const { orderId, newStatus, user } = req.body;
   if (!orderId || !newStatus) return res.status(400).json({ success: false });
@@ -122,13 +126,15 @@ router.post('/status', verifyToken, async (req, res) => {
     orderNo = '[轉換失敗]';
   }
 
-  logOperation({
+  await logOperation({
     type: '修改訂單狀態',
-    orderId,
-    orderNo,
-    oldStatus,
-    newStatus,
-    user: user || '未知使用者'
+    user: user || '未知',
+    details: {
+      orderId,
+      orderNo,
+      oldStatus,
+      newStatus
+    }
   });
 
   res.json({ success: true });

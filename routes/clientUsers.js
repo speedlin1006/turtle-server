@@ -1,10 +1,11 @@
-// routes/clientUsers.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const { verifyToken } = require('../utils/helpers');
+const { logOperation } = require('../utils/logHelper');
 
-// ✅ 取得所有售後帳號（role = 'client'）
-router.get('/', async (req, res) => {
+// ✅ 查詢所有售後帳號
+router.get('/', verifyToken, async (req, res) => {
   try {
     const users = await User.find({ role: 'client' });
     res.json(users);
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 // ✅ 新增售後帳號
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   const { username, password, name } = req.body;
   try {
     const exists = await User.findOne({ username, role: 'client' });
@@ -22,6 +23,15 @@ router.post('/', async (req, res) => {
 
     const newUser = new User({ username, password, name, role: 'client' });
     await newUser.save();
+
+    await logOperation({
+      type: '新增售後帳號',
+      user: req.user?.username || '未知',
+      details: {
+        newData: { username, password, name }
+      }
+    });
+
     res.json({ success: true, message: '新增成功' });
   } catch (err) {
     res.status(500).json({ error: '新增失敗' });
@@ -29,9 +39,23 @@ router.post('/', async (req, res) => {
 });
 
 // ✅ 刪除售後帳號
-router.delete('/:username', async (req, res) => {
+router.delete('/:username', verifyToken, async (req, res) => {
+  const { username } = req.params;
+
   try {
-    await User.deleteOne({ username: req.params.username, role: 'client' });
+    const user = await User.findOne({ username, role: 'client' });
+    if (!user) return res.status(404).json({ error: '找不到帳號' });
+
+    await User.deleteOne({ username, role: 'client' });
+
+    await logOperation({
+      type: '刪除售後帳號',
+      user: req.user?.username || '未知',
+      details: {
+        oldData: user
+      }
+    });
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: '刪除失敗' });
