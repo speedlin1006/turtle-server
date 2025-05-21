@@ -17,7 +17,7 @@ app.use(express.json({ type: ['application/json', 'application/*+json'] }))
 
 // ✅ 靜態資源
 app.use(express.static('public'))
-app.use('/turtle-individuals', express.static(path.join(__dirname, 'uploads/turtle-individuals')))
+// app.use('/turtle-individuals', express.static(path.join(__dirname, 'uploads/turtle-individuals')))
 
 // ✅ API 路由
 app.use('/api/breeds', require('./routes/breeds'))

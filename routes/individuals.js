@@ -1,163 +1,148 @@
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
-const fs = require('fs')
-const path = require('path')
+const cloudinary = require('cloudinary').v2
+const streamifier = require('streamifier')
+const Individual = require('../models/Individual') // ✅ MongoDB 模型
 
-const dataFile = path.join(__dirname, '../data/individuals.json')
-const mainImageDir = path.join(__dirname, '../public/turtle-individuals')
-const detailDir = path.join(__dirname, '../public/turtle-details')
-
-if (!fs.existsSync(mainImageDir)) fs.mkdirSync(mainImageDir, { recursive: true })
-if (!fs.existsSync(detailDir)) fs.mkdirSync(detailDir, { recursive: true })
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === 'mainImage') cb(null, mainImageDir)
-    else cb(null, detailDir)
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname)
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2)}${ext}`
-    cb(null, filename)
-  }
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-const fileFilter = (req, file, cb) => {
-  const allowed = ['.jpg', '.jpeg', '.png', '.mp4']
-  const ext = path.extname(file.originalname).toLowerCase()
-  cb(null, allowed.includes(ext))
+const upload = multer({ storage: multer.memoryStorage() })
+
+// ✅ 上傳 buffer 到 Cloudinary 的 helper
+const uploadToCloudinary = (file, folder, resourceType = 'image') => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: resourceType },
+      (error, result) => {
+        if (error) reject(error)
+        else resolve(result.secure_url)
+      }
+    )
+    streamifier.createReadStream(file.buffer).pipe(stream)
+  })
 }
 
-const upload = multer({ storage, fileFilter })
-
-// ✅ 取得所有個體資料
-router.get('/', (req, res) => {
-  if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, '[]')
+// ✅ 取得所有個體
+router.get('/', async (req, res) => {
   try {
-    const raw = fs.readFileSync(dataFile)
-    res.json(JSON.parse(raw))
+    const individuals = await Individual.find().sort({ breedId: 1, id: 1 })
+    res.json(individuals)
   } catch (err) {
-    res.status(500).json({ error: '資料讀取失敗，請檢查 JSON 格式' })
+    res.status(500).json({ error: '無法取得個體資料' })
   }
 })
 
-// ✅ 新增個體資料（含主圖／細節圖／影片）
+// ✅ 新增個體
 router.post('/', upload.fields([
   { name: 'mainImage', maxCount: 1 },
   { name: 'details', maxCount: 20 },
   { name: 'videos', maxCount: 10 }
-]), (req, res) => {
+]), async (req, res) => {
   try {
+    console.log('✅ 收到新增個體請求，正在處理上傳')
+
     const { id, breedId, description } = req.body
     if (!id || !breedId || !req.files['mainImage']) {
       return res.status(400).json({ error: '缺少必要欄位' })
     }
 
-    // ✅ 額外防呆：只允許正確類型的檔案分類
-    if (req.files.details) {
-      req.files.details = req.files.details.filter(file => file.mimetype.startsWith('image/'))
-    }
-    if (req.files.videos) {
-      req.files.videos = req.files.videos.filter(file => file.mimetype.startsWith('video/'))
-    }
-
-    const mainImage = req.files['mainImage'][0].filename
-    const details = (req.files['details'] || []).map(f => f.filename)
-    const videos = (req.files['videos'] || []).map(f => f.filename)
-
-    const newEntry = { id, breedId, description, mainImage, details, videos }
-
-    let list = []
-    if (fs.existsSync(dataFile)) {
-      list = JSON.parse(fs.readFileSync(dataFile))
-    }
-
-    const exists = list.some(i => i.id === id && i.breedId === breedId)
+    const exists = await Individual.findOne({ id, breedId })
     if (exists) {
       return res.status(400).json({ error: '該品種下已有相同個體編號' })
     }
 
-    list.push(newEntry)
-    fs.writeFileSync(dataFile, JSON.stringify(list, null, 2), 'utf-8')
-    res.json({ message: '新增成功', data: newEntry })
+    const mainImageUrl = await uploadToCloudinary(req.files['mainImage'][0], 'turtle-individuals', 'image')
+    const detailUrls = req.files['details']
+      ? await Promise.all(req.files['details']
+          .filter(f => f.mimetype.startsWith('image/'))
+          .map(f => uploadToCloudinary(f, 'turtle-details', 'image')))
+      : []
+    const videoUrls = req.files['videos']
+      ? await Promise.all(req.files['videos']
+          .filter(f => f.mimetype.startsWith('video/'))
+          .map(f => uploadToCloudinary(f, 'turtle-details', 'video')))
+      : []
+
+    const newIndividual = new Individual({
+      id,
+      breedId,
+      description,
+      mainImage: mainImageUrl,
+      details: detailUrls,
+      videos: videoUrls
+    })
+
+    await newIndividual.save()
+    res.json({ message: '新增成功', data: newIndividual })
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: '後端處理錯誤' })
+    res.status(500).json({ error: '上傳或儲存失敗' })
   }
 })
 
-// ✅ 刪除個體資料
-router.delete('/:id', (req, res) => {
-  const { id } = req.params
-  const { breedId } = req.query
-
-  if (!fs.existsSync(dataFile)) return res.status(404).json({ error: '資料不存在' })
-
-  let list = JSON.parse(fs.readFileSync(dataFile))
-  const target = list.find(i => i.id === id && i.breedId === breedId)
-  if (!target) return res.status(404).json({ error: '找不到此個體' })
-
-  if (target.mainImage) {
-    const mainPath = path.join(mainImageDir, target.mainImage)
-    if (fs.existsSync(mainPath)) fs.unlinkSync(mainPath)
-  }
-
-  if (Array.isArray(target.details)) {
-    target.details.forEach(file => {
-      const filePath = path.join(detailDir, file)
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
-    })
-  }
-
-  if (Array.isArray(target.videos)) {
-    target.videos.forEach(file => {
-      const filePath = path.join(detailDir, file)
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
-    })
-  }
-
-  list = list.filter(i => !(i.id === id && i.breedId === breedId))
-  fs.writeFileSync(dataFile, JSON.stringify(list, null, 2), 'utf-8')
-  res.json({ message: '刪除成功' })
-})
-
-// ✅ 修改個體資料
+// ✅ 修改個體
 router.put('/:id', upload.fields([
   { name: 'mainImage', maxCount: 1 },
-  { name: 'details', maxCount: 10 },
-  { name: 'videos', maxCount: 5 }
-]), (req, res) => {
+  { name: 'details', maxCount: 20 },
+  { name: 'videos', maxCount: 10 }
+]), async (req, res) => {
   try {
     const { id } = req.params
     const { breedId } = req.query
-    const rawData = fs.readFileSync(dataFile)
-    const individuals = JSON.parse(rawData)
+    console.log('✅ 收到修改請求:', id, breedId)
 
-    const index = individuals.findIndex(item => item.id === id && item.breedId === breedId)
-    if (index === -1) return res.status(404).json({ error: '找不到個體' })
+    const existing = await Individual.findOne({ id, breedId })
+    if (!existing) return res.status(404).json({ error: '找不到該個體' })
 
-    const updated = {
-      ...individuals[index],
-      description: req.body.description || individuals[index].description,
-    }
+    if (req.body.description) existing.description = req.body.description
 
     if (req.files['mainImage']) {
-      updated.mainImage = req.files['mainImage'][0].filename
-    }
-    if (req.files['details']) {
-      updated.details = req.files['details'].filter(f => f.mimetype.startsWith('image/')).map(f => f.filename)
-    }
-    if (req.files['videos']) {
-      updated.videos = req.files['videos'].filter(f => f.mimetype.startsWith('video/')).map(f => f.filename)
+      existing.mainImage = await uploadToCloudinary(req.files['mainImage'][0], 'turtle-individuals', 'image')
     }
 
-    individuals[index] = updated
-    fs.writeFileSync(dataFile, JSON.stringify(individuals, null, 2))
-    res.json(updated)
+    if (req.files['details']) {
+      existing.details = await Promise.all(req.files['details']
+        .filter(f => f.mimetype.startsWith('image/'))
+        .map(f => uploadToCloudinary(f, 'turtle-details', 'image')))
+    }
+
+    if (req.files['videos']) {
+      existing.videos = await Promise.all(req.files['videos']
+        .filter(f => f.mimetype.startsWith('video/'))
+        .map(f => uploadToCloudinary(f, 'turtle-details', 'video')))
+    }
+
+    await existing.save()
+    res.json({ message: '修改成功', data: existing })
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: '更新失敗' })
+    console.error('❌ 修改失敗:', err)
+    res.status(500).json({ error: '修改失敗' })
+  }
+})
+
+// ✅ 刪除個體
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params
+  const { breedId } = req.query
+
+  if (!id || !breedId) {
+    return res.status(400).json({ error: '缺少必要參數' })
+  }
+
+  try {
+    const deleted = await Individual.findOneAndDelete({ id, breedId })
+    if (!deleted) {
+      return res.status(404).json({ error: '找不到該個體' })
+    }
+    res.json({ message: '刪除成功' })
+  } catch (err) {
+    console.error('❌ 刪除失敗:', err)
+    res.status(500).json({ error: '刪除失敗' })
   }
 })
 

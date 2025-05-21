@@ -1,48 +1,47 @@
 [
-    {
-      "id": "leopard",
-      "name": "豹紋陸龜",
-      "image": "leopard.jpg"
-    },
-    {
-      "id": "sulcata",
-      "name": "蘇卡達象龜",
-      "image": "sulcata.jpg"
-    },
-    {
-      "id": "redfoot",
-      "name": "紅腿象龜",
-      "image": "redfoot.jpg"
-    },
-    {
-      "id": "yellowfoot",
-      "name": "黃腿象龜",
-      "image": "yellowfoot.jpg"
-    },
-    {
-      "id": "indianstar",
-      "name": "印度星龜",
-      "image": "indianstar.jpg"
-    },
-    {
-      "id": "hermann",
-      "name": "赫曼陸龜",
-      "image": "hermann.jpg"
-    },
-    {
-      "id": "euro",
-      "name": "歐洲陸龜",
-      "image": "euro.jpg"
-    },
-    {
-      "id": "aldabra",
-      "name": "亞達伯拉象龜",
-      "image": "aldabra.jpg"
-    },
-    {
-      "id": "yellowhead",
-      "name": "黃頭陸龜",
-      "image": "yellowhead.jpg"
-    }
-  ]
-  
+  {
+    "id": "leopard",
+    "name": "豹紋陸龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796468/turtle-breeds/xjjxtc7scj2c7y3nfube.jpg"
+  },
+  {
+    "id": "sulcata",
+    "name": "蘇卡達象龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796470/turtle-breeds/awo1l4ijjijqyukkfw0w.jpg"
+  },
+  {
+    "id": "redfoot",
+    "name": "紅腿象龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796469/turtle-breeds/mpuq6qs5tiqlfcft4umv.jpg"
+  },
+  {
+    "id": "yellowfoot",
+    "name": "黃腿象龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796471/turtle-breeds/rwyqm90iuavdzaafzbeo.jpg"
+  },
+  {
+    "id": "indianstar",
+    "name": "印度星龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796466/turtle-breeds/v3l10chnvvzo0z39lczr.jpg"
+  },
+  {
+    "id": "hermann",
+    "name": "赫曼陸龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796465/turtle-breeds/nyk0zannqkbcmfoik3qt.jpg"
+  },
+  {
+    "id": "euro",
+    "name": "歐洲陸龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796464/turtle-breeds/iuxrcb73mrtush85mqm6.jpg"
+  },
+  {
+    "id": "aldabra",
+    "name": "亞達伯拉象龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796462/turtle-breeds/mmaqqfa2m5w0jqvsrimu.jpg"
+  },
+  {
+    "id": "yellowhead",
+    "name": "黃頭陸龜",
+    "image": "https://res.cloudinary.com/dtu6cmekj/image/upload/v1747796473/turtle-breeds/npajtm1ak5gn5w1dmpb5.jpg"
+  }
+]
